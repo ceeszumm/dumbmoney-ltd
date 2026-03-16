@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
@@ -23,8 +23,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { usePixelBankStore, Transaction } from '@/store/pixelbank'
-import { Trash2, Edit, Plus, X } from 'lucide-react'
+import { usePixelBankStore, Transaction } from '@/store/api-store'
+import { Trash2, Edit, Plus, X, Loader2 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 // Dynamic import for Minesweeper to avoid SSR issues
@@ -143,6 +143,8 @@ export default function DumbMoney() {
   const {
     transactions,
     categories,
+    isLoading,
+    fetchData,
     addTransaction,
     updateTransaction,
     deleteTransaction,
@@ -154,6 +156,11 @@ export default function DumbMoney() {
     getSavingsRate,
     getSpendingByCategory
   } = usePixelBankStore()
+
+  // Fetch data from database on mount
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
@@ -336,6 +343,17 @@ export default function DumbMoney() {
 
       {/* Main Content */}
       <main className="relative z-10 max-w-7xl mx-auto px-4 py-6 flex-1">
+        {/* Loading State */}
+        {isLoading && transactions.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-12 h-12 text-green-500 animate-spin mb-4" />
+            <p className="pixel-font text-sm text-slate-400">Loading your vault...</p>
+          </div>
+        )}
+        
+        {/* Content */}
+        {!isLoading || transactions.length > 0 ? (
+          <>
         {/* Balance Display - Command Center */}
         <motion.div
           className="vault-container rounded-lg p-6 mb-6"
@@ -656,6 +674,8 @@ export default function DumbMoney() {
             </div>
           </ScrollArea>
         </motion.div>
+          </>
+        ) : null}
       </main>
 
       {/* Transaction Modal */}
