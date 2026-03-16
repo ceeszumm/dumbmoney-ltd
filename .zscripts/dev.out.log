@@ -304,3 +304,9 @@ prisma:query SELECT 1
 prisma:query SELECT `main`.`Category`.`id`, `main`.`Category`.`name`, `main`.`Category`.`icon`, `main`.`Category`.`color`, `main`.`Category`.`isCustom`, `main`.`Category`.`userId`, `main`.`Category`.`createdAt`, `main`.`Category`.`updatedAt` FROM `main`.`Category` WHERE 1=1 LIMIT ? OFFSET ?
 prisma:query SELECT `main`.`Transaction`.`id`, `main`.`Transaction`.`type`, `main`.`Transaction`.`amount`, `main`.`Transaction`.`category`, `main`.`Transaction`.`description`, `main`.`Transaction`.`date`, `main`.`Transaction`.`userId`, `main`.`Transaction`.`createdAt`, `main`.`Transaction`.`updatedAt` FROM `main`.`Transaction` WHERE 1=1 ORDER BY `main`.`Transaction`.`date` DESC LIMIT ? OFFSET ?
  GET /api/transactions 200 in 14ms (compile: 8ms, render: 6ms)
+ GET / 200 in 50ms (compile: 4ms, render: 46ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Category`.`id`, `main`.`Category`.`name`, `main`.`Category`.`icon`, `main`.`Category`.`color`, `main`.`Category`.`isCustom`, `main`.`Category`.`userId`, `main`.`Category`.`createdAt`, `main`.`Category`.`updatedAt` FROM `main`.`Category` WHERE 1=1 LIMIT ? OFFSET ?
+ GET /api/categories 200 in 9ms (compile: 2ms, render: 6ms)
+ GET /api/transactions 200 in 9ms (compile: 3ms, render: 5ms)
+prisma:query SELECT `main`.`Transaction`.`id`, `main`.`Transaction`.`type`, `main`.`Transaction`.`amount`, `main`.`Transaction`.`category`, `main`.`Transaction`.`description`, `main`.`Transaction`.`date`, `main`.`Transaction`.`userId`, `main`.`Transaction`.`createdAt`, `main`.`Transaction`.`updatedAt` FROM `main`.`Transaction` WHERE 1=1 ORDER BY `main`.`Transaction`.`date` DESC LIMIT ? OFFSET ?
