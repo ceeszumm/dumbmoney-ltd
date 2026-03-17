@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
+// Generate unique ID
+const generateId = () => {
+  return `cat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+}
+
 // Default categories
 const defaultCategories = [
   { id: 'food', name: 'Food', icon: '🍕', color: '#f97316', isCustom: false },
@@ -19,14 +24,15 @@ const defaultCategories = [
 // GET all categories
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany()
+    let categories = await prisma.category.findMany()
     
     // If no categories exist, seed with defaults
     if (categories.length === 0) {
+      console.log('Seeding default categories...')
       await prisma.category.createMany({
         data: defaultCategories
       })
-      return NextResponse.json(defaultCategories)
+      categories = await prisma.category.findMany()
     }
     
     return NextResponse.json(categories)
@@ -43,22 +49,29 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { name, icon, color } = body
 
-    const id = `cat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    console.log('Creating category:', { name, icon, color })
+
+    if (!name || !icon || !color) {
+      return NextResponse.json({ error: 'Missing required fields: name, icon, color' }, { status: 400 })
+    }
+
+    const id = generateId()
 
     const category = await prisma.category.create({
       data: {
         id,
-        name,
-        icon,
-        color,
+        name: String(name),
+        icon: String(icon),
+        color: String(color),
         isCustom: true,
       }
     })
 
+    console.log('Category created:', category)
     return NextResponse.json(category)
   } catch (error) {
     console.error('Error creating category:', error)
-    return NextResponse.json({ error: 'Failed to create category' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to create category', details: String(error) }, { status: 500 })
   }
 }
 
@@ -79,6 +92,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting category:', error)
-    return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to delete category', details: String(error) }, { status: 500 })
   }
 }
