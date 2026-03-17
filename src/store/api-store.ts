@@ -53,6 +53,10 @@ export const usePixelBankStore = create<PixelBankState>((set, get) => ({
         fetch('/api/categories')
       ])
       
+      if (!transactionsRes.ok || !categoriesRes.ok) {
+        throw new Error('Failed to fetch data')
+      }
+      
       const transactions = await transactionsRes.json()
       const categories = await categoriesRes.json()
       
@@ -71,12 +75,12 @@ export const usePixelBankStore = create<PixelBankState>((set, get) => ({
         body: JSON.stringify(transaction)
       })
       
-      if (res.ok) {
-        const newTransaction = await res.json()
-        set(state => ({
-          transactions: [newTransaction, ...state.transactions]
-        }))
-      }
+      if (!res.ok) throw new Error('Failed to add transaction')
+      
+      const newTransaction = await res.json()
+      set(state => ({
+        transactions: [newTransaction, ...state.transactions]
+      }))
     } catch (error) {
       console.error('Error adding transaction:', error)
       set({ error: 'Failed to add transaction' })
@@ -91,14 +95,14 @@ export const usePixelBankStore = create<PixelBankState>((set, get) => ({
         body: JSON.stringify({ id, ...transaction })
       })
       
-      if (res.ok) {
-        const updated = await res.json()
-        set(state => ({
-          transactions: state.transactions.map(t => 
-            t.id === id ? updated : t
-          )
-        }))
-      }
+      if (!res.ok) throw new Error('Failed to update transaction')
+      
+      const updated = await res.json()
+      set(state => ({
+        transactions: state.transactions.map(t => 
+          t.id === id ? updated : t
+        )
+      }))
     } catch (error) {
       console.error('Error updating transaction:', error)
       set({ error: 'Failed to update transaction' })
@@ -111,11 +115,11 @@ export const usePixelBankStore = create<PixelBankState>((set, get) => ({
         method: 'DELETE'
       })
       
-      if (res.ok) {
-        set(state => ({
-          transactions: state.transactions.filter(t => t.id !== id)
-        }))
-      }
+      if (!res.ok) throw new Error('Failed to delete transaction')
+      
+      set(state => ({
+        transactions: state.transactions.filter(t => t.id !== id)
+      }))
     } catch (error) {
       console.error('Error deleting transaction:', error)
       set({ error: 'Failed to delete transaction' })
@@ -130,12 +134,12 @@ export const usePixelBankStore = create<PixelBankState>((set, get) => ({
         body: JSON.stringify(category)
       })
       
-      if (res.ok) {
-        const newCategory = await res.json()
-        set(state => ({
-          categories: [...state.categories, newCategory]
-        }))
-      }
+      if (!res.ok) throw new Error('Failed to add category')
+      
+      const newCategory = await res.json()
+      set(state => ({
+        categories: [...state.categories, newCategory]
+      }))
     } catch (error) {
       console.error('Error adding category:', error)
       set({ error: 'Failed to add category' })
@@ -148,11 +152,11 @@ export const usePixelBankStore = create<PixelBankState>((set, get) => ({
         method: 'DELETE'
       })
       
-      if (res.ok) {
-        set(state => ({
-          categories: state.categories.filter(c => c.id !== id)
-        }))
-      }
+      if (!res.ok) throw new Error('Failed to delete category')
+      
+      set(state => ({
+        categories: state.categories.filter(c => c.id !== id)
+      }))
     } catch (error) {
       console.error('Error deleting category:', error)
       set({ error: 'Failed to delete category' })

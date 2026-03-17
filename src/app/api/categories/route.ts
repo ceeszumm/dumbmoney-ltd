@@ -19,24 +19,21 @@ const defaultCategories = [
 // GET all categories
 export async function GET() {
   try {
-    let categories = await prisma.category.findMany()
+    const categories = await prisma.category.findMany()
     
     // If no categories exist, seed with defaults
     if (categories.length === 0) {
       await prisma.category.createMany({
-        data: defaultCategories.map(c => ({
-          ...c,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }))
+        data: defaultCategories
       })
-      categories = await prisma.category.findMany()
+      return NextResponse.json(defaultCategories)
     }
     
     return NextResponse.json(categories)
   } catch (error) {
     console.error('Error fetching categories:', error)
-    return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 })
+    // Return default categories if database fails
+    return NextResponse.json(defaultCategories)
   }
 }
 
@@ -46,15 +43,15 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { name, icon, color } = body
 
+    const id = `cat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+
     const category = await prisma.category.create({
       data: {
-        id: `cat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id,
         name,
         icon,
         color,
         isCustom: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       }
     })
 

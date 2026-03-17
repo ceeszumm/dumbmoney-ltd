@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Transaction {
-  id          String   @id @default(cuid())
+  id          String   @id
   type        String
   amount      Int
   category    String
@@ -19,14 +19,17 @@ model Transaction {
 
   @@index([type])
   @@index([category])
+  @@map("Transaction")
 }
 
 model Category {
-  id        String   @id @default(cuid())
+  id        String   @id
   name      String
   icon      String
   color     String
   isCustom  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("Category")
 }

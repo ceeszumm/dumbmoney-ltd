@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db'
 export async function GET() {
   try {
     const transactions = await prisma.transaction.findMany({
-      orderBy: { date: 'desc' }
+      orderBy: { createdAt: 'desc' }
     })
     return NextResponse.json(transactions)
   } catch (error) {
