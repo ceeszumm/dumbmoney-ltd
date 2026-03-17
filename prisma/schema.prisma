@@ -2,13 +2,25 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// ============================================================
+// PENTING: UBAH KE POSTGRESQL SEBELUM DEPLOY KE VERCEL
+// ============================================================
+
+// === LOCAL DEVELOPMENT (SQLite) ===
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_DATABASE_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
-// User data (for future multi-user support)
+// === PRODUCTION (Supabase PostgreSQL) ===
+// Uncomment ini dan comment SQLite di atas untuk Vercel:
+// 
+// datasource db {
+//   provider  = "postgresql"
+//   url       = env("DATABASE_URL")
+//   directUrl = env("DIRECT_DATABASE_URL")
+// }
+
 model User {
   id            String        @id @default(cuid())
   email         String        @unique
@@ -21,7 +33,7 @@ model User {
 
 model Transaction {
   id          String   @id @default(cuid())
-  type        String   // 'income' or 'expense'
+  type        String
   amount      Int
   category    String
   description String

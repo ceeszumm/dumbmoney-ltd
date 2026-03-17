@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { usePixelBankStore, Transaction } from '@/store/api-store'
-import { Trash2, Edit, Plus, X, Loader2 } from 'lucide-react'
+import { Trash2, Edit, Plus, X, Loader2, TrendingUp, Trophy, Newspaper, ShoppingBag } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 // Dynamic import for Minesweeper to avoid SSR issues
@@ -38,6 +38,41 @@ const monthlyData = [
   { month: 'Nov', income: 16000000, expense: 8500000 },
   { month: 'Dec', income: 18000000, expense: 12000000 },
   { month: 'Jan', income: 18500000, expense: 6800000 },
+]
+
+// What You Can Buy - Products based on balance (mulai dari 10k)
+const affordableItems = [
+  { minBalance: 10000, name: 'Gorengan 5 biji', icon: '🍢', price: 10000, desc: 'Cemilan enak!' },
+  { minBalance: 15000, name: 'Es Boba', icon: '🧋', price: 15000, desc: 'Segar dan manis!' },
+  { minBalance: 20000, name: 'Nasi Goreng', icon: '🍛', price: 20000, desc: 'Makan siang hemat!' },
+  { minBalance: 30000, name: 'Kopi Starbucks', icon: '☕', price: 30000, desc: 'Ngopi gaya cafe!' },
+  { minBalance: 50000, name: 'Voucher Game 50k', icon: '🎮', price: 50000, desc: 'Top up skin favorite!' },
+  { minBalance: 75000, name: 'Paket Data 30 Hari', icon: '📱', price: 75000, desc: 'Internet sepuasnya!' },
+  { minBalance: 100000, name: 'Kaos Polos', icon: '👕', price: 100000, desc: 'Fashion minimalis!' },
+  { minBalance: 150000, name: 'Sepatu Sneakers Lokal', icon: '👟', price: 150000, desc: 'Trendy dan nyaman!' },
+  { minBalance: 250000, name: 'Bluetooth Earphone', icon: '🎧', price: 250000, desc: 'Dengar musik tanpa kabel!' },
+  { minBalance: 500000, name: 'Smartband', icon: '⌚', price: 500000, desc: 'Track kesehatan harian!' },
+  { minBalance: 750000, name: 'Keyboard Mechanical', icon: '⌨️', price: 750000, desc: 'Ngetik lebih asyik!' },
+  { minBalance: 1000000, name: 'Smartphone Entry', icon: '📲', price: 1000000, desc: 'HP baru harga terjangkau!' },
+  { minBalance: 2000000, name: 'Tablet Android', icon: '📱', price: 2000000, desc: 'Buat main game dan kerja!' },
+  { minBalance: 3000000, name: 'Motor Bebek Second', icon: '🏍️', price: 3000000, desc: 'Wueennng! Punya motor!' },
+  { minBalance: 5000000, name: 'iPhone Second', icon: '📱', price: 5000000, desc: 'Apple logo di belakang!' },
+  { minBalance: 7500000, name: 'Laptop Entry', icon: '💻', price: 7500000, desc: 'Bisa kerja remote!' },
+  { minBalance: 10000000, name: 'Mobil Bekas 90an', icon: '🚗', price: 10000000, desc: 'Wah punya mobil!' },
+  { minBalance: 25000000, name: 'DP Motor Baru', icon: '🏍️', price: 25000000, desc: 'Motor baru kredit!' },
+  { minBalance: 50000000, name: 'Mobil City Car', icon: '🚙', price: 50000000, desc: 'Mobil mewah!' },
+  { minBalance: 100000000, name: 'Rumah Minimalis', icon: '🏠', price: 100000000, desc: 'Punya rumah sendiri!' },
+  { minBalance: 500000000, name: 'Rumah Mewah', icon: '🏰', price: 500000000, desc: 'Sultan mode activated!' },
+]
+
+// Financial Tips
+const financialTips = [
+  { icon: '💡', title: 'Tips Hemat', desc: 'Masak sendiri bisa hemat 50% dari makan di luar!' },
+  { icon: '📈', title: 'Investasi', desc: 'Mulai investasi dari 100rb/bulan di reksa dana.' },
+  { icon: '🏦', title: 'Dana Darurat', desc: 'Simpan 6x pengeluaran bulanan untuk darurat.' },
+  { icon: '💳', title: 'Kartu Kredit', desc: 'Bayar penuh setiap bulan, jangan bayar minimum!' },
+  { icon: '🎯', title: 'Target', desc: 'Buat goal keuangan jangka pendek & panjang.' },
+  { icon: '📱', title: 'Track Spending', desc: 'Catat setiap pengeluaran, termasuk yang kecil!' },
 ]
 
 // Floating Icon Component
@@ -196,6 +231,27 @@ export default function DumbMoney() {
   const getCategoryInfo = (categoryId: string) => {
     return categories.find(c => c.id === categoryId) || { icon: '📦', color: '#94a3b8', name: categoryId }
   }
+
+  // Get spending ranking
+  const spendingRanking = Object.entries(spendingByCategory)
+    .map(([categoryId, amount]) => {
+      const cat = getCategoryInfo(categoryId)
+      return { id: categoryId, name: cat.name, icon: cat.icon, color: cat.color, amount }
+    })
+    .sort((a, b) => b.amount - a.amount)
+
+  // Get what you can buy based on balance
+  const affordableNow = affordableItems.filter(item => balance >= item.minBalance)
+  const nextGoal = affordableItems.find(item => balance < item.minBalance)
+
+  // Get random tip
+  const [currentTip, setCurrentTip] = useState(0)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTip(prev => (prev + 1) % financialTips.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   const pieData = Object.entries(spendingByCategory).map(([categoryId, amount]) => {
     const cat = getCategoryInfo(categoryId)
@@ -415,6 +471,101 @@ export default function DumbMoney() {
           </div>
         </motion.div>
 
+        {/* What Can You Buy - News Section */}
+        <motion.div
+          className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-lg border-4 border-purple-500 p-4 mb-6"
+          initial={{ y: -30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.25 }}
+        >
+          <h2 className="pixel-font text-sm text-purple-400 mb-3 flex items-center gap-2">
+            <motion.span
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 0.5, repeat: Infinity }}
+            >
+              🛒
+            </motion.span>
+            WHAT YOU CAN BUY NOW!
+          </h2>
+          
+          {balance > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {affordableNow.slice(-4).reverse().map((item, index) => (
+                <motion.div
+                  key={item.name}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-slate-900/50 rounded-lg p-3 border-2 border-purple-500/50 hover:border-purple-400 transition-colors"
+                >
+                  <div className="text-2xl mb-1">{item.icon}</div>
+                  <p className="pixel-font text-[10px] text-purple-300 truncate">{item.name}</p>
+                  <p className="pixel-font text-[8px] text-slate-400">{formatRupiah(item.price)}</p>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <p className="pixel-font text-xs text-slate-400 text-center py-4">
+              Belum ada saldo untuk belanja. Ayo tambah income! 💪
+            </p>
+          )}
+
+          {/* Next Goal */}
+          {nextGoal && balance > 0 && (
+            <div className="mt-4 bg-slate-900/50 rounded-lg p-3 border border-slate-700">
+              <p className="pixel-font text-[10px] text-yellow-400 mb-2">🎯 NEXT GOAL</p>
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">{nextGoal.icon}</span>
+                <div className="flex-1">
+                  <p className="pixel-font text-xs text-slate-200">{nextGoal.name}</p>
+                  <p className="pixel-font text-[10px] text-slate-400">{nextGoal.desc}</p>
+                  <div className="mt-2 h-2 bg-slate-800 rounded overflow-hidden">
+                    <motion.div
+                      className="h-full bg-yellow-500"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, (balance / nextGoal.minBalance) * 100)}%` }}
+                      transition={{ duration: 1 }}
+                    />
+                  </div>
+                  <p className="pixel-font text-[8px] text-yellow-400 mt-1">
+                    {formatRupiah(balance)} / {formatRupiah(nextGoal.minBalance)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Financial Tips Ticker */}
+        <motion.div
+          className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-lg border-2 border-green-700 p-3 mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="flex items-center gap-3">
+            <motion.span
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="text-xl"
+            >
+              {financialTips[currentTip].icon}
+            </motion.span>
+            <div className="flex-1">
+              <p className="pixel-font text-[10px] text-green-400">{financialTips[currentTip].title}</p>
+              <p className="pixel-font text-xs text-slate-300">{financialTips[currentTip].desc}</p>
+            </div>
+            <div className="flex gap-1">
+              {financialTips.map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full ${i === currentTip ? 'bg-green-500' : 'bg-slate-700'}`}
+                />
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
         {/* Quick Add Button */}
         <motion.div
           className="fixed bottom-6 right-6 z-50 flex flex-col gap-3"
@@ -446,7 +597,66 @@ export default function DumbMoney() {
         </motion.div>
 
         {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          {/* Spending Ranking */}
+          <motion.div
+            className="bg-slate-800/50 rounded-lg border-4 border-slate-700 p-4"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.35 }}
+          >
+            <h2 className="pixel-font text-sm text-yellow-400 mb-4 flex items-center gap-2">
+              <Trophy className="w-4 h-4" />
+              TOP SPENDING
+            </h2>
+            <div className="space-y-2">
+              {spendingRanking.length === 0 ? (
+                <p className="pixel-font text-[10px] text-slate-400 text-center py-4">
+                  Belum ada pengeluaran
+                </p>
+              ) : (
+                spendingRanking.slice(0, 5).map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center gap-3 p-2 bg-slate-900/50 rounded border border-slate-700"
+                  >
+                    {/* Rank */}
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center pixel-font text-[10px] font-bold
+                      ${index === 0 ? 'bg-yellow-500 text-slate-900' : 
+                        index === 1 ? 'bg-slate-400 text-slate-900' : 
+                        index === 2 ? 'bg-orange-600 text-white' : 
+                        'bg-slate-700 text-slate-400'}`}
+                    >
+                      {index + 1}
+                    </div>
+                    {/* Icon */}
+                    <span className="text-lg">{item.icon}</span>
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="pixel-font text-[10px] text-slate-200 truncate">{item.name}</p>
+                      <div className="h-1.5 bg-slate-800 rounded overflow-hidden mt-1">
+                        <motion.div
+                          className="h-full"
+                          style={{ backgroundColor: item.color }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(item.amount / (spendingRanking[0]?.amount || 1)) * 100}%` }}
+                          transition={{ duration: 0.5, delay: index * 0.1 }}
+                        />
+                      </div>
+                    </div>
+                    {/* Amount */}
+                    <p className="pixel-font text-[10px] text-red-400">
+                      {formatRupiah(item.amount)}
+                    </p>
+                  </motion.div>
+                ))
+              )}
+            </div>
+          </motion.div>
+
           {/* Spending Breakdown Pie Chart */}
           <motion.div
             className="bg-slate-800/50 rounded-lg border-4 border-slate-700 p-4"
@@ -458,15 +668,15 @@ export default function DumbMoney() {
               <MoneyBag className="scale-75" />
               SPENDING BREAKDOWN
             </h2>
-            <div className="h-64">
+            <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={pieData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
+                    innerRadius={40}
+                    outerRadius={60}
                     paddingAngle={5}
                     dataKey="value"
                   >
@@ -480,7 +690,7 @@ export default function DumbMoney() {
             </div>
             {/* Legend */}
             <div className="flex flex-wrap gap-2 justify-center mt-2">
-              {pieData.slice(0, 6).map((entry, index) => (
+              {pieData.slice(0, 4).map((entry, index) => (
                 <div key={index} className="flex items-center gap-1">
                   <span>{entry.icon}</span>
                   <span className="pixel-font text-[8px] text-slate-400">{entry.name}</span>
@@ -505,7 +715,7 @@ export default function DumbMoney() {
               </motion.span>
               MONTHLY TREND
             </h2>
-            <div className="h-64">
+            <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={monthlyData}>
                   <defs>
@@ -521,11 +731,11 @@ export default function DumbMoney() {
                   <CartesianGrid strokeDasharray="5 5" stroke="#334155" />
                   <XAxis
                     dataKey="month"
-                    tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'var(--font-pixel)' }}
+                    tick={{ fill: '#94a3b8', fontSize: 9, fontFamily: 'var(--font-pixel)' }}
                     stroke="#475569"
                   />
                   <YAxis
-                    tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'var(--font-pixel)' }}
+                    tick={{ fill: '#94a3b8', fontSize: 9, fontFamily: 'var(--font-pixel)' }}
                     stroke="#475569"
                     tickFormatter={(value) => `${value / 1000000}M`}
                   />
@@ -534,7 +744,7 @@ export default function DumbMoney() {
                     type="stepAfter"
                     dataKey="income"
                     stroke="#22c55e"
-                    strokeWidth={3}
+                    strokeWidth={2}
                     fill="url(#incomeGradient)"
                     name="Income"
                   />
@@ -542,7 +752,7 @@ export default function DumbMoney() {
                     type="stepAfter"
                     dataKey="expense"
                     stroke="#ef4444"
-                    strokeWidth={3}
+                    strokeWidth={2}
                     fill="url(#expenseGradient)"
                     name="Expense"
                   />
@@ -551,11 +761,11 @@ export default function DumbMoney() {
             </div>
             <div className="flex justify-center gap-6 mt-2">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-2 bg-green-500" style={{ imageRendering: 'pixelated' }} />
+                <div className="w-3 h-2 bg-green-500" style={{ imageRendering: 'pixelated' }} />
                 <span className="pixel-font text-[8px] text-slate-400">Income</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-2 bg-red-500" style={{ imageRendering: 'pixelated' }} />
+                <div className="w-3 h-2 bg-red-500" style={{ imageRendering: 'pixelated' }} />
                 <span className="pixel-font text-[8px] text-slate-400">Expense</span>
               </div>
             </div>
