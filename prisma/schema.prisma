@@ -2,19 +2,18 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// ============================================================
-// PENTING: UBAH KE POSTGRESQL SEBELUM DEPLOY KE VERCEL
-// ============================================================
-
-// === LOCAL DEVELOPMENT (SQLite) ===
+// ========================================
+// LOCAL DEVELOPMENT - SQLite
+// ========================================
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-// === PRODUCTION (Supabase PostgreSQL) ===
-// Uncomment ini dan comment SQLite di atas untuk Vercel:
-// 
+// ========================================
+// PRODUCTION (VERCEL) - PostgreSQL
+// Uncomment ini dan comment SQLite di atas sebelum deploy
+// ========================================
 // datasource db {
 //   provider  = "postgresql"
 //   url       = env("DATABASE_URL")
