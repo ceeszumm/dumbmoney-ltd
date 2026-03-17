@@ -2,32 +2,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// ========================================
-// LOCAL DEVELOPMENT - SQLite
-// ========================================
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-// ========================================
-// PRODUCTION (VERCEL) - PostgreSQL
-// Uncomment ini dan comment SQLite di atas sebelum deploy
-// ========================================
-// datasource db {
-//   provider  = "postgresql"
-//   url       = env("DATABASE_URL")
-//   directUrl = env("DIRECT_DATABASE_URL")
-// }
-
-model User {
-  id            String        @id @default(cuid())
-  email         String        @unique
-  name          String?
-  transactions  Transaction[]
-  categories    Category[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
 }
 
 model Transaction {
@@ -37,12 +14,9 @@ model Transaction {
   category    String
   description String
   date        String
-  userId      String?
-  user        User?    @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@index([userId])
   @@index([type])
   @@index([category])
 }
@@ -53,10 +27,6 @@ model Category {
   icon      String
   color     String
   isCustom  Boolean  @default(false)
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([userId])
 }
